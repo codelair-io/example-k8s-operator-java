@@ -1,0 +1,72 @@
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: sampleoperator
+  namespace: sampleoperator
+
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: sampleoperator
+  namespace: sampleoperator
+spec:
+  failedBuildsHistoryLimit: 1
+  successfulBuildsHistoryLimit: 1
+  output:
+    to:
+      kind: ImageStreamTag
+      name: sampleoperator:latest
+  source:
+    type: Git
+    git:
+      uri: https://github.com/codelair-io/example-k8s-operator-java.git
+  strategy:
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+    type: Docker
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sampleoperator
+  namespace: sampleoperator
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sampleoperator-is-cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: sampleoperator
+    namespace: sampleoperator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sampleoperator
+  namespace: sampleoperator
+spec:
+  selector:
+    matchLabels:
+      app: sampleoperator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sampleoperator
+    spec:
+      serviceAccountName: sampleoperator
+      containers:
+        - name: sampleoperator
+          image: >-
+            image-registry.openshift-image-registry.svc:5000/sampleoperator/sampleoperator:latest
+

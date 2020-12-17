@@ -1,0 +1,12 @@
+<settings>
+  <proxies>
+    <proxy>
+      <id>proxy</id>
+      <active>true</active>
+      <protocol>http</protocol>
+      <host>proxy.int.redbridge.se</host>
+      <port>3128</port>
+      <nonProxyHosts>*.int.redbridge.se|*.svc|*.svc.cluster.local</nonProxyHosts>
+    </proxy>
+  </proxies>
+</settings>

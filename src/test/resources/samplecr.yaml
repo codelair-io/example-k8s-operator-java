@@ -1,0 +1,7 @@
+apiVersion: io.codelair.examples.kubernetesoperator/v1
+kind: Sample
+metadata:
+  name: mysample
+  namespace: default
+spec:
+  message: hello
