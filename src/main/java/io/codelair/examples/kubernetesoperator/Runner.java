@@ -27,9 +27,17 @@ public class Runner {
   private void start() {
     try (final var client = new DefaultKubernetesClient()) {
 
-      final var loadedCrd = client.customResourceDefinitions().load(getClass().getResource("/crd.yaml")).get();
-      final var persistedCrd = client.customResourceDefinitions().createOrReplace(loadedCrd);
-      final var crdContext = CustomResourceDefinitionContext.fromCrd(persistedCrd);
+      final var v1CrdOp = client.apiextensions().v1().customResourceDefinitions(); // workaround for fabric8-client always going for v1beta1
+      final var loadedCrd = v1CrdOp.load(getClass().getResource("/crd.yaml")).get();
+      final var persistedCrd = v1CrdOp.createOrReplace(loadedCrd);
+      final var crdContext = new CustomResourceDefinitionContext.Builder()
+          .withGroup(persistedCrd.getSpec().getGroup())
+          .withVersion(persistedCrd.getSpec().getVersions().iterator().next().getName())
+          .withScope(persistedCrd.getSpec().getScope())
+          .withName(persistedCrd.getMetadata().getName())
+          .withPlural(persistedCrd.getSpec().getNames().getPlural())
+          .withKind(persistedCrd.getSpec().getNames().getKind())
+          .build();
 
       final var informers = client.informers();
       final var sharedIndexInformer = informers.sharedIndexInformerForCustomResource(crdContext, Sample.class, SampleList.class, 60 * 1000L);
