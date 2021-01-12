@@ -1,6 +1,5 @@
 package io.codelair.examples.kubernetesoperator;
 
-import io.codelair.examples.kubernetesoperator.model.DoneableSample;
 import io.codelair.examples.kubernetesoperator.model.Sample;
 import io.codelair.examples.kubernetesoperator.model.SampleList;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -30,19 +29,11 @@ public class Runner {
       final var v1CrdOp = client.apiextensions().v1().customResourceDefinitions(); // workaround for fabric8-client always going for v1beta1
       final var loadedCrd = v1CrdOp.load(getClass().getResource("/crd.yaml")).get();
       final var persistedCrd = v1CrdOp.createOrReplace(loadedCrd);
-      final var crdContext = new CustomResourceDefinitionContext.Builder()
-          .withGroup(persistedCrd.getSpec().getGroup())
-          .withVersion(persistedCrd.getSpec().getVersions().iterator().next().getName())
-          .withScope(persistedCrd.getSpec().getScope())
-          .withName(persistedCrd.getMetadata().getName())
-          .withPlural(persistedCrd.getSpec().getNames().getPlural())
-          .withKind(persistedCrd.getSpec().getNames().getKind())
-          .build();
+      final var crdContext = CustomResourceDefinitionContext.fromCrd(persistedCrd);
 
       final var informers = client.informers();
       final var sharedIndexInformer = informers.sharedIndexInformerForCustomResource(crdContext, Sample.class, SampleList.class, 60 * 1000L);
-      final var crOp =
-          client.customResources(crdContext, Sample.class, SampleList.class, DoneableSample.class);
+      final var crOp = client.customResources(crdContext, Sample.class, SampleList.class);
 
       final var controller = new Controller(client, sharedIndexInformer, crOp);
       controller.prepare();

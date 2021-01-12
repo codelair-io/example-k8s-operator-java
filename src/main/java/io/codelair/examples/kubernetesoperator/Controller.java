@@ -1,6 +1,5 @@
 package io.codelair.examples.kubernetesoperator;
 
-import io.codelair.examples.kubernetesoperator.model.DoneableSample;
 import io.codelair.examples.kubernetesoperator.model.Sample;
 import io.codelair.examples.kubernetesoperator.model.SampleList;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -21,11 +20,11 @@ public class Controller {
   private final SharedIndexInformer<Sample> sharedIndexInformer;
   private final Lister<Sample> lister;
   private final ArrayBlockingQueue<String> queue;
-  private final MixedOperation<Sample, SampleList, DoneableSample, Resource<Sample, DoneableSample>> crOp;
+  private final MixedOperation<Sample, SampleList, Resource<Sample>> crOp;
 
   public Controller(final KubernetesClient client,
                     final SharedIndexInformer<Sample> sharedIndexInformer,
-                    final MixedOperation<Sample, SampleList, DoneableSample, Resource<Sample, DoneableSample>> crOp) {
+                    final MixedOperation<Sample, SampleList, Resource<Sample>> crOp) {
 
     this.client = client;
     this.sharedIndexInformer = sharedIndexInformer;
