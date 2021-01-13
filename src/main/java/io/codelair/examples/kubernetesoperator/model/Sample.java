@@ -1,7 +1,12 @@
 package io.codelair.examples.kubernetesoperator.model;
 
+import io.codelair.examples.kubernetesoperator.Runner;
 import io.fabric8.kubernetes.client.CustomResource;
+import io.fabric8.kubernetes.model.annotation.Group;
+import io.fabric8.kubernetes.model.annotation.Version;
 
+@Group(Runner.GROUP)
+@Version("v1")
 public class Sample extends CustomResource<SampleSpec, SampleStatus> {
   @Override
   public SampleSpec getSpec() {

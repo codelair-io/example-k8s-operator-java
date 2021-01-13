@@ -14,7 +14,8 @@ public class Runner {
 
   private static final Logger log = LoggerFactory.getLogger(Runner.class);
 
-  public static final String NAME = PLURAL + '.' + Runner.class.getPackageName();
+  public static final String GROUP = "io.codelair.examples.kubernetesoperator";
+  public static final String NAME = PLURAL + '.' + GROUP;
 
   public static void main(final String[] args) {
     log.info("Preparing controller for CRD {}.", NAME);
@@ -26,7 +27,7 @@ public class Runner {
   private void start() {
     try (final var client = new DefaultKubernetesClient()) {
 
-      final var v1CrdOp = client.apiextensions().v1().customResourceDefinitions(); // workaround for fabric8-client always going for v1beta1
+      final var v1CrdOp = client.customResourceDefinitions();
       final var loadedCrd = v1CrdOp.load(getClass().getResource("/crd.yaml")).get();
       final var persistedCrd = v1CrdOp.createOrReplace(loadedCrd);
       final var crdContext = CustomResourceDefinitionContext.fromCrd(persistedCrd);
