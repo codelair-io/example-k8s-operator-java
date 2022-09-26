@@ -87,16 +87,14 @@ public class Controller {
     if (obj.getMetadata().getDeletionTimestamp() != null) { // flagged for delete
 
       obj.getMetadata().getFinalizers().remove("finalizer." + Runner.NAME);
-      // FIXME After bug in Kubernetes Client is resolved - https://github.com/fabric8io/kubernetes-client/pull/4446
-      client.resources(Sample.class).inNamespace(namespace).withName(name).patch(obj);
+      client.resource(obj).patch(PatchContext.of(PatchType.JSON_MERGE));
 
       return;
     }
 
     if (!obj.getMetadata().getFinalizers().contains("finalizer." + Runner.NAME)) { // has no finalizer, yet
       obj.getMetadata().getFinalizers().add("finalizer." + Runner.NAME);
-      // FIXME After bug in Kubernetes Client is resolved - https://github.com/fabric8io/kubernetes-client/pull/4446
-      client.resources(Sample.class).inNamespace(namespace).withName(name).patch(obj);
+      client.resource(obj).patch(PatchContext.of(PatchType.JSON_MERGE));
 
       return;
     }
